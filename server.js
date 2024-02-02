@@ -15,22 +15,17 @@ app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(
   helmet({
-    // Prevent browsers from interpreting files as something else
-    // (prevents MIME type sniffing)
     contentSecurityPolicy: {
-      useDefaults: true,
       directives: {
-        "X-Content-Type-Options": ["nosniff"],
+        "default-src": ["'self'"],
+        "script-src": ["'self'"],
+        "style-src": ["'self'"],
+        "img-src": ["'self'"],
+        "font-src": ["'self'"],
       },
     },
-
-    // Prevent cross-site scripting (XSS) attacks
-    crossOriginResourcePolicy: { policy: "same-origin" },
-
-    // Do not cache anything from the website in the client
+    xContentTypeOptions: false,
     noCache: true,
-
-    // Remove the powered-by header
     hidePoweredBy: { setTo: "PHP 7.4.3" },
   })
 );

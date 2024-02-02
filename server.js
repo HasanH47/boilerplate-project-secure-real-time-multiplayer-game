@@ -13,22 +13,10 @@ app.use("/assets", express.static(process.cwd() + "/assets"));
 
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
-app.use(
-  helmet({
-    contentSecurityPolicy: {
-      directives: {
-        "default-src": ["'self'"],
-        "script-src": ["'self'"],
-        "style-src": ["'self'"],
-        "img-src": ["'self'"],
-        "font-src": ["'self'"],
-      },
-    },
-    xContentTypeOptions: false,
-    noCache: true,
-    hidePoweredBy: { setTo: "PHP 7.4.3" },
-  })
-);
+app.use(helmet.noSniff());
+app.use(helmet.xssFilter());
+app.use(helmet.noCache());
+app.use(helmet.hidePoweredBy({ setTo: "PHP 7.4.3" }));
 
 app.route("/").get(function (req, res) {
   res.sendFile(process.cwd() + "/views/index.html");

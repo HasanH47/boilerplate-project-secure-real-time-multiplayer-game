@@ -3,26 +3,54 @@ const express = require("express");
 const bodyParser = require("body-parser");
 const socketIO = require("socket.io");
 const helmet = require("helmet");
-const http = require("http");
+const cors = require("cors");
 const { v4: uuidv4 } = require("uuid");
 const runner = require("./test-runner.js");
 const fccTestingRoutes = require("./routes/fcctesting.js");
 
 const app = express();
+app.use(cors({ origin: "*" }));
 
 app.use("/public", express.static(process.cwd() + "/public"));
 app.use("/assets", express.static(process.cwd() + "/assets"));
 
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
+app.use(helmet());
+
+// Set security-related headers
+app.use(
+  helmet.contentSecurityPolicy({
+    directives: {
+      defaultSrc: ["'self'"],
+      scriptSrc: ["'self'"],
+      styleSrc: ["'self'"],
+      fontSrc: ["'self'"],
+      imgSrc: ["'self'"],
+    },
+  })
+);
+
+// Prevent MIME type sniffing
 app.use(helmet.noSniff());
+
+// Prevent XSS attacks
 app.use(helmet.xssFilter());
+
+// Do not cache anything in the client
 app.use(helmet.noCache());
-app.use(helmet.hidePoweredBy({ setTo: "PHP 7.4.3" }));
+
+// Set fake PHP version for the 'Powered By' header
+app.use((req, res, next) => {
+  res.setHeader("X-Powered-By", "PHP 7.4.3");
+  next();
+});
 
 app.route("/").get(function (req, res) {
   res.sendFile(process.cwd() + "/views/index.html");
 });
+
+fccTestingRoutes(app);
 
 app.use(function (req, res, next) {
   res.status(404).type("text").send("Not Found");

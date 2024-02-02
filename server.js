@@ -13,7 +13,27 @@ app.use("/assets", express.static(process.cwd() + "/assets"));
 
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
-app.use(helmet());
+app.use(
+  helmet({
+    // Prevent browsers from interpreting files as something else
+    // (prevents MIME type sniffing)
+    contentSecurityPolicy: {
+      useDefaults: true,
+      directives: {
+        "X-Content-Type-Options": ["nosniff"],
+      },
+    },
+
+    // Prevent cross-site scripting (XSS) attacks
+    crossOriginResourcePolicy: { policy: "same-origin" },
+
+    // Do not cache anything from the website in the client
+    noCache: true,
+
+    // Remove the powered-by header
+    hidePoweredBy: { setTo: "PHP 7.4.3" },
+  })
+);
 
 app.route("/").get(function (req, res) {
   res.sendFile(process.cwd() + "/views/index.html");

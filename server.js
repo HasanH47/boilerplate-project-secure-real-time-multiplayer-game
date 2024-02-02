@@ -5,6 +5,8 @@ const socketIO = require("socket.io");
 const helmet = require("helmet");
 const http = require("http");
 const { v4: uuidv4 } = require("uuid");
+const runner = require("./test-runner.js");
+const fccTestingRoutes = require("./routes/fcctesting.js");
 
 const app = express();
 
